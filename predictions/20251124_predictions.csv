@@ -1,0 +1,3 @@
+settlement_period_time,curtailment_probability,curtailment_prediction,threshold_used
+2025-11-24 00:00:00,0.8326471,1,0.3978564739227295
+2025-11-24 00:30:00,0.11001685,0,0.3978564739227295

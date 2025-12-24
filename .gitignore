@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Raw Data (regenerate from APIs)
+data/raw/
+
+# Training Data (large, regenerate when needed)
+data/processed/fpn/
+data/processed/boalf/
+data/processed/features.parquet
+data/interim/
+
+# Keep only forecast data (needed for dashboard)
+!data/processed/windfor/
+!data/processed/demandfor/
+!data/processed/da_constraints/
+!data/processed/bmus/
+
+# Model artifacts (keep only essential files)
+models/*.pkl
+models/*.json
+!models/sys-day-ahead-xgb-optimal.pkl
+!models/sys-day-ahead-selected-features.pkl
+!models/sys-day-ahead-threshold.json
+
+# Environment variables
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+temp/
+
+# Batch files with sensitive info (if any)
+# run_daily_inference.bat  # Uncomment if contains passwords

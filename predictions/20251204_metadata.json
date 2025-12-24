@@ -1,0 +1,12 @@
+{
+  "prediction_date": "2025-12-04",
+  "prediction_timestamp": "2025-12-06T15:54:26.493115",
+  "model_file": "sys-day-ahead-xgb-optimal.pkl",
+  "xgboost_version": "3.1.1",
+  "threshold": 0.30323776602745056,
+  "n_features": 20,
+  "n_periods": 1,
+  "n_curtailment_predicted": 1,
+  "avg_curtailment_probability": 0.9056585431098938,
+  "max_curtailment_probability": 0.9056585431098938
+}
