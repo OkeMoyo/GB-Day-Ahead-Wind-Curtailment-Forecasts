@@ -47,11 +47,21 @@ REM Step 4: Push to GitHub for Streamlit Cloud
 echo.
 echo [4/4] Pushing to GitHub...
 git add predictions/
-git commit -m "Auto-update: Predictions for %date% %time%"
-git push origin main
 
+REM Check if there are changes to commit
+git diff-index --quiet HEAD --
 if errorlevel 1 (
-    echo WARNING: Git push failed (check internet connection)
+    echo Changes detected, committing...
+    git commit -m "Auto-update: Predictions for %date% %time%"
+    git push origin main
+    
+    if errorlevel 1 (
+        echo WARNING: Git push failed (check internet connection)
+    ) else (
+        echo Successfully pushed to GitHub
+    )
+) else (
+    echo No changes to commit (predictions unchanged)
 )
 
 echo.

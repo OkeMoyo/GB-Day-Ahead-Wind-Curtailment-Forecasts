@@ -24,7 +24,7 @@ from pipeline.ingest.boalf import fetch_boalf_chunk
 from pipeline.ingest.fpn import fetch_fpn_for_bmu
 from pipeline.ingest.demandfor import fetch_demand_forecast
 from pipeline.ingest.windfor import fetch_wind_forecast
-from pipeline.ingest.da_constraints import fetch_da_constraints_data
+from pipeline.ingest.da_constraints import fetch_da_constraints_full
 
 # ============================
 # CONFIG
@@ -300,10 +300,11 @@ def extract_system_level_incremental(dataset_name: str, date_col: str):
         latest_available_date = get_api_latest_date()
 
         if last_date is None:
-            start_date = datetime(2024, 1, 1)
-            logging.info(f"No existing data found. Starting from {start_date.date()}")
-        else:
-            start_date = last_date + timedelta(days=1)
+            logging.error(f"❌ No existing data found for {dataset_name}")
+            logging.error(f"   Run initial extraction first: python -m pipeline.ingest.{dataset_name}")
+            return
+
+        start_date = last_date + timedelta(days=1)
 
         if start_date.date() > latest_available_date.date():
             logging.info(f"✅ No new data for {dataset_name}. Already up to date.")
@@ -315,19 +316,44 @@ def extract_system_level_incremental(dataset_name: str, date_col: str):
         if dataset_name == "demandfor":
             # demandfor fetches all data as a list of records, then we convert and filter
             all_records = fetch_demand_forecast()  # Returns list
-            if not all_records:  # ✅ Fixed: check if list is empty
+            if not all_records:
                 logging.info(f"ℹ️ No {dataset_name} data returned from API")
                 return
             
-            all_data = pd.DataFrame(all_records)  # ✅ Fixed: convert list to DataFrame
-            new_data = filter_data_by_date_range(all_data, date_col, last_date if last_date else start_date)
+            all_data = pd.DataFrame(all_records)
+            new_data = filter_data_by_date_range(all_data, date_col, last_date)
             
         elif dataset_name == "da_constraints":
-            # da_constraints uses start/end datetime parameters
-            new_data = fetch_da_constraints_data(
-                start=start_date,
-                end=latest_available_date
-            )
+            # da_constraints: Download full CSV, then filter for new data only
+            logging.info("Downloading full constraints CSV from NESO...")
+            
+            try:
+                from pipeline.ingest.da_constraints import NESO_URL
+                import requests
+                from io import StringIO
+                
+                response = requests.get(NESO_URL, timeout=60)
+                response.raise_for_status()
+                
+                all_data = pd.read_csv(StringIO(response.text))
+                logging.info(f"Downloaded {len(all_data):,} total rows")
+                
+                # Convert dates
+                all_data[date_col] = pd.to_datetime(all_data[date_col], errors='coerce')
+                all_data = all_data.dropna(subset=[date_col])
+                
+                # Filter for new data only
+                new_data = all_data[all_data[date_col] > last_date].copy()
+                
+                if new_data.empty:
+                    logging.info(f"ℹ️ No new {dataset_name} data found (already up to date)")
+                    return
+                
+                logging.info(f"Found {len(new_data):,} new rows after {last_date.date()}")
+                
+            except Exception as e:
+                logging.error(f"Failed to download/parse constraints: {e}")
+                raise
             
         elif dataset_name == "windfor":
             # windfor uses start_date/end_date string parameters
@@ -354,8 +380,7 @@ def extract_system_level_incremental(dataset_name: str, date_col: str):
     except Exception as e:
         logging.error(f"❌ Error in system-level extraction for {dataset_name}: {e}")
         logging.error(traceback.format_exc())
-        raise  # ✅ Re-raise to be caught by main loop
-
+        raise
 
 # ============================
 # MAIN
