@@ -1,6 +1,6 @@
 {
   "prediction_date": "2025-12-28",
-  "prediction_timestamp": "2025-12-29T13:58:45.997394",
+  "prediction_timestamp": "2025-12-29T20:53:54.682292",
   "model_file": "sys-day-ahead-xgb-optimal.pkl",
   "xgboost_version": "3.1.1",
   "threshold": 0.30323776602745056,
