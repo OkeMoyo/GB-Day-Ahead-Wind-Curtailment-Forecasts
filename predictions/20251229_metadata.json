@@ -1,0 +1,19 @@
+{
+  "prediction_date": "2025-12-29",
+  "prediction_timestamp": "2025-12-30T16:06:51.692693",
+  "model_file": "sys-day-ahead-xgb-optimal.pkl",
+  "xgboost_version": "3.1.1",
+  "threshold": 0.30323776602745056,
+  "n_features": 20,
+  "n_periods": 48,
+  "n_curtailment_predicted": 0,
+  "avg_curtailment_probability": 0.033151060342788696,
+  "max_curtailment_probability": 0.053780507296323776,
+  "min_curtailment_probability": 0.023071663454174995,
+  "data_sources": {
+    "wind_forecast": "windfor_cleaned.parquet",
+    "demand_forecast": "demandfor_cleaned.parquet",
+    "constraints": "da_constraints_cleaned.parquet",
+    "bmus": "bmus_cleaned.parquet"
+  }
+}
