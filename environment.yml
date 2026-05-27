@@ -1,0 +1,15 @@
+name: gb-day-ahead-wind-curtailment-forecasts
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - xgboost
+  - pyarrow
+  - joblib
+  - requests
+  - pyyaml

@@ -1,6 +1,6 @@
 import os
 import glob
-import time
+import time as time_module
 import logging
 import requests
 import pandas as pd
@@ -40,8 +40,19 @@ logging.basicConfig(
 def fetch_fpn_for_bmu(bmu_id, start_date, end_date, chunk_size_days=7):
     """Fetch FPN data for a single BMU in date chunks with retry logic."""
     all_chunks = []
-    start = datetime.fromisoformat(start_date.replace("Z", "+00:00"))
-    end = datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+    def _to_datetime(val):
+        # Accept str in ISO format, pandas Timestamp, or datetime
+        if isinstance(val, datetime):
+            return val
+        if isinstance(val, str):
+            return datetime.fromisoformat(val.replace("Z", "+00:00"))
+        try:
+            return pd.to_datetime(val).to_pydatetime()
+        except Exception:
+            raise TypeError(f"Cannot convert {val!r} to datetime")
+
+    start = _to_datetime(start_date)
+    end = _to_datetime(end_date)
 
     chunk_start = start
     while chunk_start < end:
@@ -72,7 +83,7 @@ def fetch_fpn_for_bmu(bmu_id, start_date, end_date, chunk_size_days=7):
                     f"Retry {retries}/{MAX_RETRIES} for BMU {bmu_id} "
                     f"chunk {chunk_start} → {chunk_end} due to error: {e}"
                 )
-                time.sleep(wait_time)
+                time_module.sleep(wait_time)
 
         chunk_start = chunk_end
 
